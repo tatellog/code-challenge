@@ -1,23 +1,47 @@
-import logo from './logo.svg';
+import {useEffect, useState} from "react";
 import './App.css';
+import axios from "axios"
+
+
+export const CardUser = ({data}) => {
+  console.log("data:", data)
+  return (
+      <div>
+        <img src={data?.picture}/>
+        <h1>{`Title: ${data?.title} - ${data?.firstName} ${data?.lastName}`} </h1>
+      </div>
+  )
+}
+
+
 
 function App() {
+  const [getData, setGetData] = useState([])
+  const [page, setPage] = useState(0)
+
+  useEffect(() => {
+    axios({
+      method: 'GET',
+      url: "https://dummyapi.io/data/v1/user",
+      headers: {"app-id": "62f253d4e4b4d5c1cabee6da"},
+      params:{
+        page,
+        limit: 10
+      }}).then(payload => {
+      setGetData((prevState) => [...prevState, ...payload?.data?.data])
+    })
+
+  }, [page])
+
+  const getPaginate = () => {
+    setPage(page + 1)
+  }
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {getData.map(items => <CardUser data={items}/>)}
+      <button onClick={() => getPaginate()}>Next</button>
     </div>
   );
 }
